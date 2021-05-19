@@ -22,12 +22,13 @@ export class GamesRepository implements IGamesRepository {
   }
 
   async findUsersByGameId(id: string): Promise<User[]> {
-    const user = await this.repository
-      .createQueryBuilder("game").leftJoinAndSelect("game.users", "user").where("game.id = :id", { id: `${id}` }).getOne();
-    if (!user) {
+    const users = await this.repository
+      .createQueryBuilder("game").leftJoin("game.users", "user").select(["user"]).where("game.id = :id", { id: `${id}` }).addSelect(["user.email, user.first_name, user.last_name"]).getRawMany();
+    if (!users) {
       throw new Error("Game doesnt exist");
     }
-    return user.users;
+
+    return users;
     // Complete usando query builder
   }
 }
